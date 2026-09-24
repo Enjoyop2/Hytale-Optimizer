@@ -2,13 +2,13 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.10+" />
-  <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-555?style=for-the-badge" alt="Supported platforms" />
+  <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-555?style=for-the-badge" alt="Windows, Linux and macOS" />
   <img src="https://img.shields.io/badge/Status-Experimental-orange?style=for-the-badge" alt="Experimental" />
 </p>
 
 <p align="center">
-  <strong>Hytale asset optimization utilities</strong><br />
-  <em>Hytale varlık dosyaları için optimizasyon araçları</em>
+  Hytale için yerel <strong>Assets.zip</strong> optimizasyon aracı<br />
+  Local <strong>Assets.zip</strong> optimization tool for Hytale
 </p>
 
 <p align="center">
@@ -22,37 +22,46 @@
 
 ## 🇬🇧 English
 
-**Hytale Optimizer** is a collection of small, platform-independent Python utilities for modifying `Assets.zip`. The current tools focus on reducing unnecessary asset data and replacing music assets with a silent audio file.
+**Hytale Optimizer** is a Python utility that safely processes Hytale's `Assets.zip` and can reduce unnecessary asset data. It creates a `.bak` backup, validates the archive, writes to a temporary archive, and replaces the original only after validation succeeds.
 
-> ⚠️ **Experimental software:** These scripts directly replace the original `Assets.zip`. Make a backup before running them. Use them at your own risk and verify the result after every Hytale update.
+> ⚠️ **Experimental software:** Close Hytale and create your own additional backup before use. This project is not affiliated with Hytale or its rights holders and is intended only for local asset management, accessibility, and performance experimentation.
 
-### ✨ Current features
+### What does it optimize?
 
-- 🔎 Recursively searches for `Assets.zip` beside the scripts.
-- 🧹 Minifies JSON-like files under `Server/` without alphabetically reordering keys.
-- 🎵 Replaces `.ogg` files under `Common/Music/` with the bundled `Empty.ogg` file.
-- 🧰 Uses a temporary archive in the target directory before replacing the original archive.
-- 🖥️ Prints progress, errors, and a completion summary in the terminal.
-- 🌍 Uses Python's standard library only; no third-party packages are currently required.
+The interactive program provides these options:
 
-### 📁 Repository contents
-
-| File | Purpose |
+| Option | What it does |
 | --- | --- |
-| [`assets_json_min.py`](assets_json_min.py) | Minifies `.json`, `.particlesystem`, and `.particlespawner` files under `Server/` inside `Assets.zip`. |
-| [`assets_clear_music.py`](assets_clear_music.py) | Replaces `.ogg` files under `Common/Music/` with `Empty.ogg`. |
-| [`Empty.ogg`](Empty.ogg) | Silent audio source used by the music replacement script. |
+| **Server JSON Minify** | Removes unnecessary whitespace from JSON-like files under `Server/`. |
+| **Mute Music** | Replaces `.ogg` files under `Common/Music/` with the bundled silent `Empty.ogg`. |
+| **Uncompress PNGs ≤ 256×256** | Re-encodes small PNG files when Pillow is available. |
+| **Client JSON Minify** | Minifies `.blockymodel` and `.blockyanim` files under `Common/`. |
+| **Check ZIP** | Checks whether `Assets.zip` is a readable, healthy ZIP archive. |
 
-### ✅ Requirements
+The optimizer only keeps a change when it is appropriate. Invalid files are skipped and reported instead of being destroyed. A backup is created as `Assets.zip.bak` and the archive size, changed files, skipped files, and errors are shown at the end.
+
+### Screenshots
+
+The same screenshots are used in both language sections:
+
+| Original / Before optimization | Optimized / After optimization |
+| --- | --- |
+| ![Original Hytale game](screenshot/original_game.png) | ![Optimized Hytale game](screenshot/optimize_game.png) |
+| Original, unoptimized view | Optimized view |
+
+> Results depend on the contents of your own `Assets.zip`, selected mode, Hytale version, and system. The screenshots are examples, not a guaranteed benchmark.
+
+### Requirements
 
 - Python **3.10 or newer**
 - A writable Hytale asset directory
-- An `Assets.zip` file located in the repository directory or one of its subdirectories
-- A complete backup of the original asset archive
+- An `Assets.zip` file in the repository directory or one of its subdirectories
+- A backup of the original archive
+- **Pillow only for PNG optimization**; all other modes use Python's standard library
 
-No `requirements.txt` file is needed at the moment because the scripts use only Python's built-in modules.
+### Installation with `git clone`
 
-### 🚀 Installation
+`git clone` downloads a copy of this GitHub repository to your computer. `cd` then moves the terminal into that downloaded folder.
 
 ```bash
 git clone https://github.com/Enjoyop2/Hytale-Optimizer.git
@@ -60,47 +69,79 @@ cd Hytale-Optimizer
 python --version
 ```
 
-### ▶️ Usage
-
-Place the repository next to the Hytale installation, or ensure that the folder containing `Assets.zip` is inside the repository directory. Then run the desired script:
-
-#### Minify server asset data
+On some systems, use `python3` instead of `python`:
 
 ```bash
-python assets_json_min.py
+python3 --version
 ```
 
-This processes matching files in the `Server/` path inside the archive. Invalid JSON files are left unchanged and reported in the terminal.
+### `pip` controls and Pillow installation
 
-#### Silence music assets
+`pip` is Python's package manager. The optimizer does **not** need third-party packages for JSON, music, or ZIP checks. Install Pillow only if you want to use the PNG option.
+
+Check that `pip` is available:
 
 ```bash
-python assets_clear_music.py
+python -m pip --version
 ```
 
-This replaces matching `.ogg` files in `Common/Music/` with the repository's `Empty.ogg` file.
+Install or update Pillow:
 
-### ⚠️ Important safety notes
+```bash
+python -m pip install --upgrade Pillow
+```
 
-1. Close Hytale before modifying its files.
-2. Copy `Assets.zip` to a safe location before running either script.
-3. The scripts replace the original archive after processing; the repository does **not** currently create a user-named backup automatically.
-4. Restore your backup if Hytale fails to start or assets behave unexpectedly.
-5. Hytale updates may change archive paths or file formats, so re-check the scripts after updates.
-6. This project is not affiliated with or endorsed by Hytale or its rights holders.
-7. The tools are intended for local asset management and accessibility/performance experimentation—not for bypassing anti-cheat or gaining an unfair advantage in online play.
+If your operating system requires it, use:
 
-### 🤝 Contributing
+```bash
+python3 -m pip install --upgrade Pillow
+```
 
-Issues and pull requests are welcome.
+Verify Pillow:
 
-1. Fork the repository.
-2. Create a focused branch.
-3. Test against a copy of `Assets.zip`.
-4. Document platform-specific behavior or limitations.
-5. Open a pull request with a clear description of the change.
+```bash
+python -c "from PIL import Image; print('Pillow OK:', Image.__version__)"
+```
 
-### 📄 License
+Using `python -m pip` is recommended because it installs the package into the same Python interpreter that runs the optimizer. A `requirements.txt` file is not currently necessary because Pillow is optional.
+
+### Usage
+
+1. Close Hytale.
+2. Put `Assets.zip` in this repository or one of its subdirectories, or place the repository next to the Hytale installation.
+3. Run the program:
+
+```bash
+python hytale_optimizer.py
+```
+
+4. Select an option from the menu.
+5. Check the summary and keep `Assets.zip.bak` until you confirm that Hytale works correctly.
+
+To check the archive without optimizing it, select **5) Check ZIP**. To exit, select **6) Exit**.
+
+### Safety notes
+
+- Do not run the optimizer while Hytale is using the archive.
+- Keep an external backup in addition to the automatically created `.bak` file.
+- Restore the backup if Hytale does not start or assets behave unexpectedly.
+- Hytale updates may change archive paths or file formats; re-test after updates.
+- This tool is not designed to bypass anti-cheat or provide an unfair online advantage.
+
+### Repository files
+
+| File | Purpose |
+| --- | --- |
+| [`hytale_optimizer.py`](hytale_optimizer.py) | Interactive optimizer and ZIP validation tool. |
+| [`Empty.ogg`](Empty.ogg) | Silent audio file used by the music option. |
+| [`screenshot/original_game.png`](screenshot/original_game.png) | Example before-optimization screenshot. |
+| [`screenshot/optimize_game.png`](screenshot/optimize_game.png) | Example after-optimization screenshot. |
+
+### Contributing
+
+Issues and pull requests are welcome. Test changes against a copy of `Assets.zip`, explain platform-specific behavior, and include clear reproduction steps.
+
+### License
 
 No license has been declared yet. Until a license is added, all rights are reserved by the copyright holder.
 
@@ -110,37 +151,46 @@ No license has been declared yet. Until a license is added, all rights are reser
 
 ## 🇹🇷 Türkçe
 
-**Hytale Optimizer**, `Assets.zip` dosyası üzerinde değişiklik yapmak için hazırlanmış, platform bağımsız küçük Python araçlarından oluşur. Mevcut araçlar gereksiz varlık verilerini azaltmaya ve müzik dosyalarını sessiz bir ses dosyasıyla değiştirmeye odaklanır.
+**Hytale Optimizer**, Hytale'ın `Assets.zip` arşivini işleyen bir Python aracıdır. Gereksiz varlık verilerini azaltmaya yardımcı olur. İşlemden önce `.bak` yedeği oluşturur, arşivi kontrol eder, geçici bir arşive yazar ve yalnızca doğrulama başarılı olursa orijinal dosyanın yerine geçirir.
 
-> ⚠️ **Deneysel yazılım:** Scriptler orijinal `Assets.zip` dosyasını doğrudan değiştirir. Çalıştırmadan önce mutlaka yedek alın. Kullanım sorumluluğu size aittir ve her Hytale güncellemesinden sonra sonucu kontrol edin.
+> ⚠️ **Deneysel yazılım:** Hytale'ı kapatın ve kullanmadan önce ayrıca kendi yedeğinizi alın. Bu proje Hytale veya hak sahipleriyle bağlantılı değildir; yalnızca yerel varlık yönetimi, erişilebilirlik ve performans denemeleri içindir.
 
-### ✨ Mevcut özellikler
+### Neleri optimize eder?
 
-- 🔎 Scriptlerin bulunduğu klasörde ve alt klasörlerde `Assets.zip` arar.
-- 🧹 `Server/` altındaki JSON benzeri dosyaları anahtarları alfabetik olarak sıralamadan küçültür.
-- 🎵 `Common/Music/` altındaki `.ogg` dosyalarını repodaki `Empty.ogg` ile değiştirir.
-- 🧰 Orijinal arşivi değiştirmeden önce hedef klasörde geçici bir arşiv oluşturur.
-- 🖥️ Terminalde ilerleme, hata ve işlem özeti gösterir.
-- 🌍 Şu anda üçüncü taraf paket gerektirmez; yalnızca Python standart kütüphanesini kullanır.
+Programdaki seçenekler:
 
-### 📁 Depo içeriği
-
-| Dosya | Açıklama |
+| Seçenek | Ne işe yarar? |
 | --- | --- |
-| [`assets_json_min.py`](assets_json_min.py) | `Assets.zip` içindeki `Server/` klasöründe bulunan `.json`, `.particlesystem` ve `.particlespawner` dosyalarını küçültür. |
-| [`assets_clear_music.py`](assets_clear_music.py) | `Common/Music/` altındaki `.ogg` dosyalarını `Empty.ogg` ile değiştirir. |
-| [`Empty.ogg`](Empty.ogg) | Müzik değiştirme scriptinin kullandığı sessiz ses dosyasıdır. |
+| **Server JSON Minify** | `Server/` altındaki JSON benzeri dosyalardaki gereksiz boşlukları kaldırır. |
+| **Mute Music** | `Common/Music/` altındaki `.ogg` dosyalarını repodaki sessiz `Empty.ogg` ile değiştirir. |
+| **Uncompress PNGs ≤ 256×256** | Pillow kuruluysa küçük PNG dosyalarını yeniden kodlar. |
+| **Client JSON Minify** | `Common/` altındaki `.blockymodel` ve `.blockyanim` dosyalarını küçültür. |
+| **Check ZIP** | `Assets.zip` dosyasının okunabilir ve sağlam bir ZIP arşivi olup olmadığını kontrol eder. |
 
-### ✅ Gereksinimler
+Optimizer yalnızca uygun değişiklikleri kaydeder. Geçersiz dosyalar silinmez; atlanır ve raporlanır. `Assets.zip.bak` adıyla yedek oluşturulur. İşlem sonunda arşiv boyutu, değişen dosyalar, atlanan dosyalar ve hatalar gösterilir.
 
-- **Python 3.10 veya üzeri**
-- Yazma izni olan bir Hytale varlık klasörü
+### Görseller
+
+Her iki dil bölümünde aynı görseller kullanılmaktadır:
+
+| Optimize edilmemiş / Önce | Optimize edilmiş / Sonra |
+| --- | --- |
+| ![Optimize edilmemiş Hytale görseli](screenshot/original_game.png) | ![Optimize edilmiş Hytale görseli](screenshot/optimize_game.png) |
+| Optimize edilmemiş örnek görüntü | Optimize edilmiş örnek görüntü |
+
+> Sonuç; kendi `Assets.zip` içeriğinize, seçtiğiniz moda, Hytale sürümüne ve sisteminize bağlıdır. Görseller örnektir; kesin bir benchmark sonucu garanti etmez.
+
+### Gereksinimler
+
+- Python **3.10 veya üzeri**
+- Yazma izni olan Hytale varlık klasörü
 - Repo klasöründe veya alt klasörlerinden birinde bulunan `Assets.zip`
-- Orijinal arşivin eksiksiz bir yedeği
+- Orijinal arşivin yedeği
+- **Yalnızca PNG optimizasyonu için Pillow**; diğer seçenekler Python'ın standart kütüphanesini kullanır
 
-Scriptler yalnızca Python'ın yerleşik modüllerini kullandığı için şu an `requirements.txt` dosyasına ihtiyaç yoktur.
+### `git clone` ile kurulum
 
-### 🚀 Kurulum
+`git clone`, bu GitHub reposunun bir kopyasını bilgisayarınıza indirir. `cd` komutu ise terminali indirilen klasöre geçirir.
 
 ```bash
 git clone https://github.com/Enjoyop2/Hytale-Optimizer.git
@@ -148,47 +198,79 @@ cd Hytale-Optimizer
 python --version
 ```
 
-### ▶️ Kullanım
-
-Repo klasörünü Hytale kurulumu ile aynı konuma yerleştirin veya `Assets.zip` dosyasının repo klasörü içinde ya da bir alt klasörde olduğundan emin olun. Ardından istediğiniz scripti çalıştırın:
-
-#### Sunucu varlıklarını küçültme
+Bazı sistemlerde `python` yerine `python3` kullanmanız gerekebilir:
 
 ```bash
-python assets_json_min.py
+python3 --version
 ```
 
-Arşiv içindeki `Server/` yoluyla eşleşen dosyaları işler. Geçersiz JSON dosyaları değiştirilmeden bırakılır ve terminalde raporlanır.
+### `pip` kontrolleri ve Pillow kurulumu
 
-#### Müzik dosyalarını susturma
+`pip`, Python paket yöneticisidir. JSON, müzik ve ZIP kontrolleri için üçüncü taraf paket gerekmez. PNG seçeneğini kullanmak istiyorsanız yalnızca Pillow kurmanız yeterlidir.
+
+`pip` kullanılabilir mi kontrol edin:
 
 ```bash
-python assets_clear_music.py
+python -m pip --version
 ```
 
-`Common/Music/` altında bulunan eşleşen `.ogg` dosyalarını repodaki `Empty.ogg` ile değiştirir.
+Pillow'u kurun veya güncelleyin:
 
-### ⚠️ Önemli güvenlik notları
+```bash
+python -m pip install --upgrade Pillow
+```
 
-1. Dosyaları değiştirmeden önce Hytale'ı kapatın.
-2. Scriptleri çalıştırmadan önce `Assets.zip` dosyasını güvenli bir konuma kopyalayın.
-3. Scriptler işlem sonunda orijinal arşivin yerine geçer; depo şu anda kullanıcı tarafından belirlenen otomatik bir yedek oluşturmaz.
-4. Hytale başlatılamazsa veya varlıklarda sorun oluşursa yedeğinizi geri yükleyin.
-5. Hytale güncellemeleri arşiv yollarını veya dosya biçimlerini değiştirebilir; güncellemelerden sonra scriptleri tekrar kontrol edin.
-6. Bu proje Hytale veya hak sahipleriyle bağlantılı değildir ve onlar tarafından desteklenmez.
-7. Araçlar yerel varlık yönetimi ve erişilebilirlik/performans denemeleri için tasarlanmıştır; anti-cheat sistemlerini aşmak veya çevrim içi oyunda haksız avantaj sağlamak amacı taşımaz.
+İşletim sisteminiz gerektiriyorsa:
 
-### 🤝 Katkıda bulunma
+```bash
+python3 -m pip install --upgrade Pillow
+```
 
-Issue ve pull request'ler memnuniyetle karşılanır.
+Pillow kurulumunu doğrulayın:
 
-1. Repoyu fork edin.
-2. Sadece ilgili değişikliği içeren bir branch oluşturun.
-3. Testleri `Assets.zip` kopyası üzerinde yapın.
-4. Platforma özel davranışları veya sınırlamaları belgeleyin.
-5. Değişikliği açıklayan net bir pull request gönderin.
+```bash
+python -c "from PIL import Image; print('Pillow OK:', Image.__version__)"
+```
 
-### 📄 Lisans
+`python -m pip` kullanılması önerilir; böylece paket, optimizer'ı çalıştıran aynı Python yorumlayıcısına kurulur. Pillow isteğe bağlı olduğu için şu anda `requirements.txt` gerekli değildir.
+
+### Kullanım
+
+1. Hytale'ı kapatın.
+2. `Assets.zip` dosyasını bu repo klasörüne veya alt klasörlerinden birine koyun; alternatif olarak repo klasörünü Hytale kurulumu yanına yerleştirin.
+3. Programı çalıştırın:
+
+```bash
+python hytale_optimizer.py
+```
+
+4. Menüden bir seçenek seçin.
+5. Özeti kontrol edin ve Hytale'ın sorunsuz çalıştığından emin olana kadar `Assets.zip.bak` dosyasını saklayın.
+
+Arşivi değiştirmeden kontrol etmek için **5) Check ZIP** seçeneğini kullanın. Çıkmak için **6) Exit** seçeneğini seçin.
+
+### Güvenlik notları
+
+- Hytale arşivi kullanırken optimizer'ı çalıştırmayın.
+- Otomatik `.bak` dosyasına ek olarak harici bir yedek bulundurun.
+- Hytale açılmazsa veya varlıklarda sorun olursa yedeği geri yükleyin.
+- Hytale güncellemelerinden sonra arşiv yolları ve dosya biçimleri değişebileceği için tekrar test edin.
+- Bu araç anti-cheat sistemlerini aşmak veya çevrim içi oyunda haksız avantaj sağlamak için tasarlanmamıştır.
+
+### Repo dosyaları
+
+| Dosya | Açıklama |
+| --- | --- |
+| [`hytale_optimizer.py`](hytale_optimizer.py) | Etkileşimli optimizer ve ZIP doğrulama aracı. |
+| [`Empty.ogg`](Empty.ogg) | Müzik seçeneğinde kullanılan sessiz ses dosyası. |
+| [`screenshot/original_game.png`](screenshot/original_game.png) | Optimizasyon öncesi örnek görsel. |
+| [`screenshot/optimize_game.png`](screenshot/optimize_game.png) | Optimizasyon sonrası örnek görsel. |
+
+### Katkıda bulunma
+
+Issue ve pull request'ler memnuniyetle karşılanır. Değişiklikleri `Assets.zip` kopyası üzerinde test edin, platforma özel davranışları açıklayın ve net test adımları ekleyin.
+
+### Lisans
 
 Henüz bir lisans belirtilmemiştir. Lisans eklenene kadar tüm haklar telif sahibine aittir.
 
