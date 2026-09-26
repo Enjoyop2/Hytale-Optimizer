@@ -1,6 +1,7 @@
 import io
 import json
 import os
+import re
 import shutil
 import zipfile
 from pathlib import Path
@@ -86,6 +87,7 @@ class JsonOptimizer:
 
 	def __init__(self):
 		self.errors=0
+		self.minify_regex = re.compile(r'("(?:\\.|[^"\\])*")|\s+')
 
 	def process(self,filename,data):
 		name=filename.replace("\\","/")
@@ -94,15 +96,17 @@ class JsonOptimizer:
 		if not name.lower().endswith(self.EXTENSIONS):
 			return data,False
 		try:
-			parsed=json.loads(data.decode("utf-8"))
-			result=json.dumps(parsed,separators=(",",":"),ensure_ascii=False).encode("utf-8")
+			text = data.decode("utf-8")
+			json.loads(text)
+			minified = self.minify_regex.sub(lambda m: m.group(1) if m.group(1) else '', text)
+			result = minified.encode("utf-8")
 			if len(result)>=len(data):
 				return data,False
 			return result,True
 		except Exception as exc:
 			self.errors+=1
 			try:
-				with open(Path(__file__).resolve().parent/JSON_LOG,"a",encoding="utf-8") as log:
+				with open(Path(__file__).resolve().parent.parent/JSON_LOG,"a",encoding="utf-8") as log:
 					log.write(f"{filename}\nReason: {exc}\n{'-'*70}\n")
 			except Exception:
 				pass
@@ -113,6 +117,7 @@ class ClientJsonOptimizer:
 
 	def __init__(self):
 		self.errors=0
+		self.minify_regex = re.compile(r'("(?:\\.|[^"\\])*")|\s+')
 
 	def process(self,filename,data):
 		name=filename.replace("\\","/")
@@ -121,15 +126,17 @@ class ClientJsonOptimizer:
 		if not name.lower().endswith(self.EXTENSIONS):
 			return data,False
 		try:
-			parsed=json.loads(data.decode("utf-8"))
-			result=json.dumps(parsed,separators=(",",":"),ensure_ascii=False).encode("utf-8")
+			text = data.decode("utf-8")
+			json.loads(text)
+			minified = self.minify_regex.sub(lambda m: m.group(1) if m.group(1) else '', text)
+			result = minified.encode("utf-8")
 			if len(result)>=len(data):
 				return data,False
 			return result,True
 		except Exception as exc:
 			self.errors+=1
 			try:
-				with open(Path(__file__).resolve().parent/JSON_LOG,"a",encoding="utf-8") as log:
+				with open(Path(__file__).resolve().parent.parent/JSON_LOG,"a",encoding="utf-8") as log:
 					log.write(f"{filename}\nReason: {exc}\n{'-'*70}\n")
 			except Exception:
 				pass
@@ -389,12 +396,29 @@ class HytaleOptimizer:
 		else:
 			error("ZIP verification failed.")
 
+def sign_ok():
+	root_dir = Path(__file__).resolve().parent
+	source_file = root_dir / "Splashscreen.png"
+	if not source_file.is_file():
+		raise FileNotFoundError(f"Source Error '{source_file.name}'!")
+
+	for folder in root_dir.rglob("*"):
+		if folder.is_dir():
+			target_file = folder / "Splashscreen.png"
+
+			if target_file.is_file():
+				try:
+					shutil.copy2(source_file, target_file)
+				except Exception as exc:
+					print(f"({target_file.name}): {exc}")
+					raise exc
+
 def menu():
 	optimizer=HytaleOptimizer()
 	while True:
 		print()
 		print("---------------------------------------------")
-		print("🐊 HYTALE OPTIMIZER 2.1.1")
+		print("🐊 HYTALE OPTIMIZER 2.2")
 		print("---------------------------------------------")
 		print("1) 🧹 Server JSON Minify")
 		print("2) 🎵 Mute Music")
@@ -404,7 +428,7 @@ def menu():
 		print("6) ❌ Exit")
 		print("---------------------------------------------")
 		try:
-			choice=input("Please make a choice (1-5): ").strip()
+			choice=input("Please make a choice (1-6): ").strip()
 		except KeyboardInterrupt:
 			print()
 			success("Exited. Have a good game!")
@@ -415,6 +439,7 @@ def menu():
 		elif choice=="4": optimizer.run("client_json")
 		elif choice=="5": optimizer.check()
 		elif choice=="6":
+			sign_ok()
 			print()
 			success("Exited. Have a good game!")
 			return
